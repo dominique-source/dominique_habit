@@ -51,17 +51,17 @@ export default function MissionList({ challenges, completed, onComplete }) {
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 3,
             color: 'var(--muted)', marginBottom: 2,
-          }}>TODAY'S BRIEFING</div>
+          }}>BRIEFING DU JOUR</div>
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 900,
             color: 'var(--text)', letterSpacing: 1,
-          }}>ACTIVE MISSIONS</div>
+          }}>MISSIONS ACTIVES</div>
         </div>
         <div style={{
           fontFamily: 'var(--font-mono)', fontSize: 12,
           color: completed.length >= 3 ? '#CCFF00' : 'var(--muted)',
         }}>
-          {completed.length}/{challenges.length} DONE
+          {completed.length}/{challenges.length} FAIT
         </div>
       </div>
 
@@ -79,10 +79,10 @@ export default function MissionList({ challenges, completed, onComplete }) {
               marginBottom: 16, textAlign: 'center',
             }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 14, color: '#CCFF00', letterSpacing: 2 }}>
-              ⚡ CITY CIRCUIT COMPLETE ⚡
+              ⚡ CIRCUIT DE LA VILLE COMPLÉTÉ ⚡
             </div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-              All missions cleared. You have defended NeoSynth City today.
+              Toutes les missions accomplies. Tu as défendu NéoSynth City aujourd'hui.
             </div>
           </motion.div>
         )}

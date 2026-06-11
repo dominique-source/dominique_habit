@@ -11,9 +11,9 @@ import { useDaily } from './hooks/useDaily.js'
 import { getLevel } from './hooks/useXP.js'
 
 const TABS = [
-  { id: 'home',  label: 'HOME',   Icon: IconBuildingSkyscraper },
-  { id: 'map',   label: 'MAP',    Icon: IconMap },
-  { id: 'stats', label: 'STATS',  Icon: IconChartBar },
+  { id: 'home',  label: 'ACCUEIL', Icon: IconBuildingSkyscraper },
+  { id: 'map',   label: 'CARTE',   Icon: IconMap },
+  { id: 'stats', label: 'STATS',   Icon: IconChartBar },
 ]
 
 function TabBar({ active, onChange }) {
@@ -127,7 +127,7 @@ export default function App() {
               fontFamily: 'var(--font-display)', fontSize: 14, letterSpacing: 3,
               color: level.color, textShadow: `0 0 20px ${level.color}`,
             }}>
-            ⚡ LEVEL UP — {level.name} ⚡
+            ⚡ NIVEAU SUPÉRIEUR — {level.name} ⚡
           </motion.div>
         )}
       </AnimatePresence>

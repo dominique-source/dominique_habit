@@ -2,11 +2,11 @@ import { motion } from 'framer-motion'
 import { ZONES } from '../data/challenges.js'
 
 const ZONE_LIST = [
-  { key: 'movement', label: 'MOVEMENT ZONE',  subtitle: 'Sky Bridge District',   color: '#CCFF00', emoji: '🏃' },
-  { key: 'nutrition', label: 'NUTRITION ZONE', subtitle: 'Quantum Fuel District', color: '#00E5FF', emoji: '🥗' },
-  { key: 'recovery',  label: 'RECOVERY ZONE',  subtitle: 'Deep Recharge Sector',  color: '#7F77DD', emoji: '🌙' },
-  { key: 'mindset',   label: 'MINDSET ZONE',   subtitle: 'Zen District',           color: '#FFA502', emoji: '🧠' },
-  { key: 'boss',      label: 'BOSS ZONE',      subtitle: 'City Circuit Core',      color: '#FF4757', emoji: '💀' },
+  { key: 'movement', label: 'ZONE MOUVEMENT',     subtitle: 'District Sky Bridge',       color: '#CCFF00', emoji: '🏃' },
+  { key: 'nutrition', label: 'ZONE NUTRITION',    subtitle: 'District Carburant Quantique', color: '#00E5FF', emoji: '🥗' },
+  { key: 'recovery',  label: 'ZONE RÉCUPÉRATION', subtitle: 'Secteur Recharge Profonde',  color: '#7F77DD', emoji: '🌙' },
+  { key: 'mindset',   label: 'ZONE MENTAL',       subtitle: 'District Zen',               color: '#FFA502', emoji: '🧠' },
+  { key: 'boss',      label: 'ZONE BOSS',         subtitle: 'Noyau du Circuit Urbain',    color: '#FF4757', emoji: '💀' },
 ]
 
 function getLast7Days() {
@@ -42,13 +42,13 @@ export default function CityMap({ zoneHistory }) {
     <div style={{ padding: '20px 16px' }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 3, color: 'var(--muted)', marginBottom: 2 }}>
-          TACTICAL OVERVIEW
+          VUE TACTIQUE
         </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 900, color: 'var(--text)', letterSpacing: 1 }}>
-          CITY MAP
+          CARTE DE LA VILLE
         </div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
-          Zone activity over the last 7 days
+          Activité par zone sur les 7 derniers jours
         </div>
       </div>
 
@@ -117,10 +117,10 @@ export default function CityMap({ zoneHistory }) {
         background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: '12px 16px',
         fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', lineHeight: 1.8,
       }}>
-        <div style={{ color: 'var(--text)', marginBottom: 4, letterSpacing: 1 }}>// SIGNAL GUIDE</div>
-        <div>Colored block = mission completed in that zone on that day</div>
-        <div>Complete 3+ zones daily to maintain your streak</div>
-        <div>Boss missions only appear ~20% of days</div>
+        <div style={{ color: 'var(--text)', marginBottom: 4, letterSpacing: 1 }}>// GUIDE DES SIGNAUX</div>
+        <div>Bloc coloré = mission accomplie dans cette zone ce jour-là</div>
+        <div>Complète 3+ zones par jour pour maintenir ta série</div>
+        <div>Les missions boss apparaissent ~20% des jours</div>
       </div>
     </div>
   )

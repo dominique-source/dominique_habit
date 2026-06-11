@@ -29,7 +29,7 @@ function CalendarHeatmap({ xpHistory }) {
   return (
     <div>
       <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginBottom: 8, letterSpacing: 1 }}>
-        XP ACTIVITY — LAST 30 DAYS
+        ACTIVITÉ XP — 30 DERNIERS JOURS
       </div>
       <div style={{ display: 'flex', gap: 4 }}>
         {weeks.map((w, wi) => (
@@ -70,10 +70,10 @@ export default function StatsView({ totalXP, streak, xpHistory }) {
     <div style={{ padding: '20px 16px' }}>
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 11, letterSpacing: 3, color: 'var(--muted)', marginBottom: 2 }}>
-          AGENT DOSSIER
+          DOSSIER AGENT
         </div>
         <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 900, color: 'var(--text)', letterSpacing: 1 }}>
-          STATS
+          STATISTIQUES
         </div>
       </div>
 
@@ -116,10 +116,10 @@ export default function StatsView({ totalXP, streak, xpHistory }) {
       {/* Stat grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
         {[
-          { label: 'CURRENT STREAK', value: streak, unit: 'days', color: '#FFA502' },
-          { label: 'ACTIVE DAYS', value: totalDays, unit: 'total', color: '#00E5FF' },
-          { label: 'AVG DAILY XP', value: avgXP, unit: 'xp/day', color: '#CCFF00' },
-          { label: 'BEST DAY', value: bestDay?.xp ?? 0, unit: 'xp', color: '#7F77DD' },
+          { label: 'SÉRIE ACTUELLE', value: streak, unit: 'jours', color: '#FFA502' },
+          { label: 'JOURS ACTIFS', value: totalDays, unit: 'total', color: '#00E5FF' },
+          { label: 'XP MOYEN/JOUR', value: avgXP, unit: 'xp/jour', color: '#CCFF00' },
+          { label: 'MEILLEUR JOUR', value: bestDay?.xp ?? 0, unit: 'xp', color: '#7F77DD' },
         ].map((s, i) => (
           <motion.div key={s.label}
             initial={{ opacity: 0, scale: 0.9 }}
@@ -153,10 +153,10 @@ export default function StatsView({ totalXP, streak, xpHistory }) {
         background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8,
         fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--muted)', lineHeight: 1.7,
       }}>
-        <div style={{ color: 'var(--lime)', marginBottom: 4 }}>// MISSION INTEL</div>
-        <div>Completing 3+ missions daily maintains your streak.</div>
-        <div>500 XP unlocks RUNNER rank. 7000 XP achieves LEGEND status.</div>
-        <div>Boss missions award 300 XP — the highest single-day reward.</div>
+        <div style={{ color: 'var(--lime)', marginBottom: 4 }}>// INTEL MISSION</div>
+        <div>Accomplir 3+ missions par jour maintient ta série.</div>
+        <div>500 XP débloque le rang COUREUR. 7000 XP atteint le statut LÉGENDE.</div>
+        <div>Les missions boss rapportent 300 XP — la récompense maximale.</div>
       </div>
     </div>
   )

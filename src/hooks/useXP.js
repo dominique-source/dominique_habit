@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react'
 
 export const LEVELS = [
-  { name: 'ROOKIE',   min: 0,    color: '#6b6b8a' },
-  { name: 'RUNNER',   min: 500,  color: '#CCFF00' },
-  { name: 'WARRIOR',  min: 1500, color: '#00E5FF' },
-  { name: 'ELITE',    min: 3500, color: '#7F77DD' },
-  { name: 'LEGEND',   min: 7000, color: '#FF4757' },
+  { name: 'RECRUE',   min: 0,    color: '#6b6b8a' },
+  { name: 'COUREUR',  min: 500,  color: '#CCFF00' },
+  { name: 'GUERRIER', min: 1500, color: '#00E5FF' },
+  { name: 'ÉLITE',    min: 3500, color: '#7F77DD' },
+  { name: 'LÉGENDE',  min: 7000, color: '#FF4757' },
 ]
 
 export function getLevel(xp) {

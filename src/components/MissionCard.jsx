@@ -112,6 +112,7 @@ export default function MissionCard({ challenge, isCompleted, onComplete, index 
             }}>
               {zone.label}
               {isBoss && <span style={{ marginLeft: 8, color: '#FF4757', animation: 'none' }}>⚠ BOSS</span>}
+
             </div>
 
             {/* Title */}
@@ -147,7 +148,7 @@ export default function MissionCard({ challenge, isCompleted, onComplete, index 
                 fontFamily: 'var(--font-display)', fontSize: 12,
                 color: color, letterSpacing: 1,
               }}>
-                {isCompleted ? '✓ MISSION COMPLETE' : `+${challenge.xp} XP`}
+                {isCompleted ? '✓ MISSION ACCOMPLIE' : `+${challenge.xp} XP`}
               </div>
 
               {!isCompleted && (
@@ -162,7 +163,7 @@ export default function MissionCard({ challenge, isCompleted, onComplete, index 
                     fontFamily: 'var(--font-display)', fontSize: 10,
                     color, letterSpacing: 2, cursor: 'pointer',
                   }}>
-                  COMPLETE MISSION
+                  ACCOMPLIR LA MISSION
                 </motion.button>
               )}
             </div>

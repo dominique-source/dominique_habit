@@ -91,7 +91,7 @@ function CitySkyline({ litZones = [] }) {
 
       {/* Neon city label */}
       <text x="400" y="30" textAnchor="middle" fill="#7F77DD" opacity="0.3"
-        fontFamily="Orbitron" fontSize="10" letterSpacing="6">NEOSYNTH CITY</text>
+        fontFamily="Orbitron" fontSize="10" letterSpacing="6">NÉOSYNTH CITY</text>
     </svg>
   )
 }
@@ -194,7 +194,7 @@ export default function CityView({ totalXP, streak, completedCount, totalCount, 
             {streak}
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1 }}>
-            DAY STREAK
+            JOURS CONSÉCUTIFS
           </div>
         </div>
 
@@ -206,6 +206,7 @@ export default function CityView({ totalXP, streak, completedCount, totalCount, 
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--muted)', letterSpacing: 1 }}>
             MISSIONS
           </div>
+
         </div>
       </div>
     </div>
