@@ -103,9 +103,9 @@ export default function App() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <IconSword size={18} color="#CCFF00" />
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 900, letterSpacing: 2, color: '#CCFF00' }}>
-            INSTINCT QUEST
+          <IconSword size={18} color="#00BFFF" />
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 900, letterSpacing: 2, color: '#00BFFF' }}>
+            DOMINIQUE CHALLENGE
           </span>
         </div>
         <XPCounter xp={totalXP} />
