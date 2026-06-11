@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   IconBuildingSkyscraper, IconMap, IconChartBar, IconSword,
+  IconLogout, IconLoader2,
 } from '@tabler/icons-react'
 import CityView from './components/CityView.jsx'
 import MissionList from './components/MissionList.jsx'
 import CityMap from './components/CityMap.jsx'
 import StatsView from './components/StatsView.jsx'
+import LoginScreen from './components/LoginScreen.jsx'
 import { useDaily } from './hooks/useDaily.js'
+import { useAuth } from './hooks/useAuth.js'
 import { getLevel } from './hooks/useXP.js'
 
 const TABS = [
@@ -34,20 +37,19 @@ function TabBar({ active, onChange }) {
               flex: 1, padding: '12px 0 10px',
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
               background: 'none', border: 'none', cursor: 'pointer',
-              transition: 'opacity 0.2s',
             }}>
             <motion.div animate={{ scale: isActive ? 1.15 : 1 }} transition={{ duration: 0.2 }}>
-              <Icon size={20} color={isActive ? '#CCFF00' : '#6b6b8a'} />
+              <Icon size={20} color={isActive ? '#00BFFF' : '#6b6b8a'} />
             </motion.div>
             <span style={{
               fontFamily: 'var(--font-display)', fontSize: 8, letterSpacing: 1.5,
-              color: isActive ? '#CCFF00' : '#6b6b8a',
+              color: isActive ? '#00BFFF' : '#6b6b8a',
             }}>
               {label}
             </span>
             {isActive && (
               <motion.div layoutId="tab-indicator"
-                style={{ width: 20, height: 2, borderRadius: 1, background: '#CCFF00', marginTop: 2 }} />
+                style={{ width: 20, height: 2, borderRadius: 1, background: '#00BFFF', marginTop: 2 }} />
             )}
           </button>
         )
@@ -56,28 +58,29 @@ function TabBar({ active, onChange }) {
   )
 }
 
-function XPCounter({ xp }) {
+// Sync indicator
+function SyncDot({ syncing }) {
+  if (!syncing) return null
   return (
     <motion.div
-      key={xp}
-      animate={{ scale: [1, 1.1, 1] }}
-      transition={{ duration: 0.3 }}
+      animate={{ opacity: [0.4, 1, 0.4] }}
+      transition={{ duration: 1, repeat: Infinity }}
       style={{
-        fontFamily: 'var(--font-display)', fontSize: 11,
-        color: '#CCFF00', letterSpacing: 2,
-      }}>
-      {xp.toLocaleString()} XP
-    </motion.div>
+        width: 6, height: 6, borderRadius: '50%',
+        background: '#00BFFF', marginLeft: 6, display: 'inline-block',
+      }} />
   )
 }
 
 export default function App() {
   const [tab, setTab] = useState('home')
   const [levelUpAnim, setLevelUpAnim] = useState(false)
+  const { user, error, loading: authLoading, loginGoogle, loginEmail, registerEmail, logout } = useAuth()
+
   const {
     challenges, completed, totalXP, streak,
-    xpHistory, zoneHistory, completeChallenge,
-  } = useDaily()
+    xpHistory, zoneHistory, completeChallenge, syncing,
+  } = useDaily(user?.uid)
 
   const level = getLevel(totalXP)
 
@@ -92,6 +95,36 @@ export default function App() {
     }
   }
 
+  // Chargement auth
+  if (user === undefined) {
+    return (
+      <div style={{
+        minHeight: '100dvh', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', background: 'var(--bg)',
+      }}>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+          <IconLoader2 size={32} color="#00BFFF" />
+        </motion.div>
+      </div>
+    )
+  }
+
+  // Non connecté → écran login
+  if (!user) {
+    return (
+      <LoginScreen
+        onLoginGoogle={loginGoogle}
+        onLoginEmail={loginEmail}
+        onRegister={registerEmail}
+        error={error}
+        loading={authLoading}
+      />
+    )
+  }
+
+  // App principale
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', minHeight: '100dvh', position: 'relative', background: 'var(--bg)' }}>
       {/* Top bar */}
@@ -107,8 +140,19 @@ export default function App() {
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 13, fontWeight: 900, letterSpacing: 2, color: '#00BFFF' }}>
             DOMINIQUE CHALLENGE
           </span>
+          <SyncDot syncing={syncing} />
         </div>
-        <XPCounter xp={totalXP} />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <motion.span key={totalXP} animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 0.3 }}
+            style={{ fontFamily: 'var(--font-display)', fontSize: 11, color: '#00BFFF', letterSpacing: 2 }}>
+            {totalXP.toLocaleString()} XP
+          </motion.span>
+          <button onClick={logout} title="Déconnexion"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+            <IconLogout size={16} color="var(--muted)" />
+          </button>
+        </div>
       </div>
 
       {/* Level-up banner */}
@@ -131,6 +175,17 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Salutation agent */}
+      {user.displayName && (
+        <div style={{
+          padding: '8px 16px 0',
+          fontFamily: 'var(--font-mono)', fontSize: 10,
+          color: 'var(--muted)', letterSpacing: 1,
+        }}>
+          AGENT : {user.displayName.toUpperCase()}
+        </div>
+      )}
 
       {/* Page content */}
       <div style={{ paddingBottom: 80 }}>

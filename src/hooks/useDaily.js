@@ -1,76 +1,101 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase.js'
 import { getDailyChallenges, todayStr, yesterdayStr } from '../utils/randomizer.js'
-
-const STORAGE_KEY = 'iq_state'
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch { return null }
-}
-
-function saveState(state) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)) } catch {}
-}
-
-function initState() {
-  const today = todayStr()
-  const saved = loadState()
-
-  if (saved && saved.date === today) return saved
-
-  // Carry over totalXP and streak from previous save
-  const totalXP = saved?.totalXP ?? 0
-  const streak = calcStreak(saved, today)
-  const xpHistory = saved?.xpHistory ?? []
-  const zoneHistory = saved?.zoneHistory ?? {}
-
-  return {
-    date: today,
-    challenges: getDailyChallenges(today),
-    completed: [],
-    totalXP,
-    streak,
-    xpHistory,
-    zoneHistory,
-  }
-}
 
 function calcStreak(saved, today) {
   if (!saved) return 0
   const yesterday = yesterdayStr()
-  // If last active day was yesterday and had 3+ completions, continue streak
-  if (saved.date === yesterday && saved.completed.length >= 3) {
+  if (saved.date === yesterday && (saved.completed?.length ?? 0) >= 3) {
     return (saved.streak ?? 0) + 1
   }
   if (saved.date === today) return saved.streak ?? 0
   return 0
 }
 
-export function useDaily() {
-  const [state, setState] = useState(() => initState())
+function buildFreshDay(saved) {
+  const today = todayStr()
+  return {
+    date: today,
+    challenges: getDailyChallenges(today),
+    completed: [],
+    totalXP: saved?.totalXP ?? 0,
+    streak: calcStreak(saved, today),
+    xpHistory: saved?.xpHistory ?? [],
+    zoneHistory: saved?.zoneHistory ?? {},
+  }
+}
 
-  // Persist on change
-  useEffect(() => { saveState(state) }, [state])
+export function useDaily(userId) {
+  const [state, setState] = useState(null)
+  const [syncing, setSyncing] = useState(false)
+  const saveTimeout = useRef(null)
 
-  // Midnight reset
+  // Load from Firestore on mount / userId change
   useEffect(() => {
-    const check = () => {
+    if (!userId) { setState(null); return }
+
+    const ref = doc(db, 'users', userId, 'data', 'daily')
+
+    // Real-time listener
+    const unsub = onSnapshot(ref, (snap) => {
+      const saved = snap.exists() ? snap.data() : null
       const today = todayStr()
-      if (state.date !== today) setState(initState())
-    }
-    const id = setInterval(check, 60_000)
-    return () => clearInterval(id)
-  }, [state.date])
+
+      if (!saved || saved.date !== today) {
+        // New day or first time — build fresh state
+        const fresh = buildFreshDay(saved)
+        setState(fresh)
+        // Persist fresh day to Firestore
+        setDoc(ref, fresh).catch(console.error)
+      } else {
+        setState(saved)
+      }
+    }, (err) => {
+      console.error('Firestore error:', err)
+    })
+
+    return unsub
+  }, [userId])
+
+  // Debounced save to Firestore
+  const saveToFirestore = useCallback((newState) => {
+    if (!userId) return
+    setSyncing(true)
+    clearTimeout(saveTimeout.current)
+    saveTimeout.current = setTimeout(async () => {
+      try {
+        const ref = doc(db, 'users', userId, 'data', 'daily')
+        await setDoc(ref, newState)
+      } catch (e) {
+        console.error('Save error:', e)
+      } finally {
+        setSyncing(false)
+      }
+    }, 800)
+  }, [userId])
+
+  // Midnight reset check
+  useEffect(() => {
+    if (!userId) return
+    const interval = setInterval(() => {
+      const today = todayStr()
+      if (state && state.date !== today) {
+        const fresh = buildFreshDay(state)
+        setState(fresh)
+        saveToFirestore(fresh)
+      }
+    }, 60_000)
+    return () => clearInterval(interval)
+  }, [userId, state, saveToFirestore])
 
   const completeChallenge = useCallback((challengeId, xpReward) => {
     setState(prev => {
-      if (prev.completed.includes(challengeId)) return prev
+      if (!prev || prev.completed.includes(challengeId)) return prev
+
       const completed = [...prev.completed, challengeId]
       const totalXP = prev.totalXP + xpReward
 
-      // Update zone history
       const ch = prev.challenges.find(c => c.id === challengeId)
       const zoneHistory = { ...prev.zoneHistory }
       if (ch) {
@@ -78,25 +103,28 @@ export function useDaily() {
         zoneHistory[key] = (zoneHistory[key] ?? 0) + 1
       }
 
-      // Update xpHistory
       const xpHistory = [...(prev.xpHistory ?? [])]
       const todayEntry = xpHistory.find(e => e.date === prev.date)
       if (todayEntry) todayEntry.xp += xpReward
       else xpHistory.push({ date: prev.date, xp: xpReward })
 
-      return { ...prev, completed, totalXP, zoneHistory, xpHistory }
+      const next = { ...prev, completed, totalXP, zoneHistory, xpHistory }
+      saveToFirestore(next)
+      return next
     })
-  }, [])
+  }, [saveToFirestore])
 
   return {
-    date: state.date,
-    challenges: state.challenges,
-    completed: state.completed,
-    totalXP: state.totalXP,
-    streak: state.streak,
-    xpHistory: state.xpHistory ?? [],
-    zoneHistory: state.zoneHistory ?? {},
+    state,
+    syncing,
+    date: state?.date,
+    challenges: state?.challenges ?? [],
+    completed: state?.completed ?? [],
+    totalXP: state?.totalXP ?? 0,
+    streak: state?.streak ?? 0,
+    xpHistory: state?.xpHistory ?? [],
+    zoneHistory: state?.zoneHistory ?? {},
     completeChallenge,
-    allDone: state.completed.length >= state.challenges.length,
+    allDone: (state?.completed?.length ?? 0) >= (state?.challenges?.length ?? 5),
   }
 }
