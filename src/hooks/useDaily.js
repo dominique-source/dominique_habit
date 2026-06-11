@@ -13,6 +13,12 @@ function calcStreak(saved, today) {
   return 0
 }
 
+// Ne stocker que les données persistantes, pas les défis (régénérés côté client)
+function serializeState(state) {
+  const { challenges, ...rest } = state
+  return rest
+}
+
 function buildFreshDay(saved) {
   const today = todayStr()
   return {
@@ -44,13 +50,17 @@ export function useDaily(userId) {
       const today = todayStr()
 
       if (!saved || saved.date !== today) {
-        // New day or first time — build fresh state
+        // Nouveau jour ou première fois
         const fresh = buildFreshDay(saved)
         setState(fresh)
-        // Persist fresh day to Firestore
-        setDoc(ref, fresh).catch(console.error)
+        setDoc(ref, serializeState(fresh)).catch(console.error)
       } else {
-        setState(saved)
+        // Toujours régénérer les défis depuis le fichier local (jamais depuis Firestore)
+        // pour avoir les dernières mises à jour (reps, labels, etc.)
+        setState({
+          ...saved,
+          challenges: getDailyChallenges(today),
+        })
       }
     }, (err) => {
       console.error('Firestore error:', err)
@@ -67,7 +77,7 @@ export function useDaily(userId) {
     saveTimeout.current = setTimeout(async () => {
       try {
         const ref = doc(db, 'users', userId, 'data', 'daily')
-        await setDoc(ref, newState)
+        await setDoc(ref, serializeState(newState))
       } catch (e) {
         console.error('Save error:', e)
       } finally {
