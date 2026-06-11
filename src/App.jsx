@@ -78,8 +78,8 @@ export default function App() {
   const { user, error, loading: authLoading, loginGoogle, loginEmail, registerEmail, logout } = useAuth()
 
   const {
-    challenges, completed, totalXP, streak,
-    xpHistory, zoneHistory, completeChallenge, syncing,
+    challenges, completed, progress, totalXP, streak,
+    xpHistory, zoneHistory, completeChallenge, tickRep, syncing,
   } = useDaily(user?.uid)
 
   const level = getLevel(totalXP)
@@ -204,7 +204,9 @@ export default function App() {
               <MissionList
                 challenges={challenges}
                 completed={completed}
+                progress={progress}
                 onComplete={handleComplete}
+                onTickRep={tickRep}
               />
             </motion.div>
           )}

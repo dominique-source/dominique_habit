@@ -19,6 +19,7 @@ function buildFreshDay(saved) {
     date: today,
     challenges: getDailyChallenges(today),
     completed: [],
+    progress: {}, // { challengeId: repCount }
     totalXP: saved?.totalXP ?? 0,
     streak: calcStreak(saved, today),
     xpHistory: saved?.xpHistory ?? [],
@@ -114,17 +115,53 @@ export function useDaily(userId) {
     })
   }, [saveToFirestore])
 
+  // Incrémenter une répétition (défis multi-étapes)
+  const tickRep = useCallback((challengeId, totalReps, xpPerRep) => {
+    setState(prev => {
+      if (!prev) return prev
+      const currentReps = prev.progress?.[challengeId] ?? 0
+      if (currentReps >= totalReps) return prev
+
+      const newReps = currentReps + 1
+      const progress = { ...prev.progress, [challengeId]: newReps }
+      const totalXP = prev.totalXP + xpPerRep
+
+      const xpHistory = [...(prev.xpHistory ?? [])]
+      const todayEntry = xpHistory.find(e => e.date === prev.date)
+      if (todayEntry) todayEntry.xp += xpPerRep
+      else xpHistory.push({ date: prev.date, xp: xpPerRep })
+
+      // Compléter automatiquement quand toutes les reps sont faites
+      let completed = [...prev.completed]
+      const zoneHistory = { ...prev.zoneHistory }
+      if (newReps >= totalReps && !completed.includes(challengeId)) {
+        completed.push(challengeId)
+        const ch = prev.challenges.find(c => c.id === challengeId)
+        if (ch) {
+          const key = `${prev.date}_${ch.zone}`
+          zoneHistory[key] = (zoneHistory[key] ?? 0) + 1
+        }
+      }
+
+      const next = { ...prev, progress, completed, totalXP, xpHistory, zoneHistory }
+      saveToFirestore(next)
+      return next
+    })
+  }, [saveToFirestore])
+
   return {
     state,
     syncing,
     date: state?.date,
     challenges: state?.challenges ?? [],
     completed: state?.completed ?? [],
+    progress: state?.progress ?? {},
     totalXP: state?.totalXP ?? 0,
     streak: state?.streak ?? 0,
     xpHistory: state?.xpHistory ?? [],
     zoneHistory: state?.zoneHistory ?? {},
     completeChallenge,
+    tickRep,
     allDone: (state?.completed?.length ?? 0) >= (state?.challenges?.length ?? 5),
   }
 }

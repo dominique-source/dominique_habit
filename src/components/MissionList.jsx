@@ -28,7 +28,7 @@ function NeonConfetti() {
   )
 }
 
-export default function MissionList({ challenges, completed, onComplete }) {
+export default function MissionList({ challenges, completed, progress, onComplete, onTickRep }) {
   const [showConfetti, setShowConfetti] = useState(false)
   const allDone = challenges.length > 0 && completed.length >= challenges.length
 
@@ -95,7 +95,9 @@ export default function MissionList({ challenges, completed, onComplete }) {
             key={ch.id}
             challenge={ch}
             isCompleted={completed.includes(ch.id)}
+            repCount={progress[ch.id] ?? 0}
             onComplete={onComplete}
+            onTickRep={onTickRep}
             index={i}
           />
         ))}

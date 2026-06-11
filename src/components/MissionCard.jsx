@@ -35,16 +35,26 @@ function XPBurst({ xp }) {
   )
 }
 
-export default function MissionCard({ challenge, isCompleted, onComplete, index }) {
+export default function MissionCard({ challenge, isCompleted, onComplete, onTickRep, repCount = 0, index }) {
   const [showBurst, setShowBurst] = useState(false)
   const zone = ZONES[challenge.zone.toUpperCase()] ?? ZONES.MOVEMENT
   const ZoneIcon = ZONE_ICONS[challenge.zone] ?? IconBolt
   const color = zone.color
   const isBoss = challenge.isBoss
+  const hasReps = !!challenge.reps
+  const totalReps = challenge.reps ?? 1
+  const xpPerRep = Math.round(challenge.xp / totalReps)
 
   function handleComplete() {
     if (isCompleted) return
     onComplete(challenge.id, challenge.xp)
+    setShowBurst(true)
+    setTimeout(() => setShowBurst(false), 1300)
+  }
+
+  function handleTick(i) {
+    if (repCount > i) return // déjà coché
+    onTickRep(challenge.id, totalReps, xpPerRep)
     setShowBurst(true)
     setTimeout(() => setShowBurst(false), 1300)
   }
@@ -142,6 +152,58 @@ export default function MissionCard({ challenge, isCompleted, onComplete, index 
               {challenge.flavor}
             </div>
 
+            {/* Répétitions */}
+            {hasReps && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', marginBottom: 8, letterSpacing: 1 }}>
+                  PROGRESSION : {repCount}/{totalReps}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {challenge.repLabels.map((label, i) => {
+                    const done = repCount > i
+                    return (
+                      <motion.button
+                        key={i}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleTick(i)}
+                        disabled={done}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          background: done ? `${color}18` : '#1a1a2e',
+                          border: `1px solid ${done ? color : 'var(--border)'}`,
+                          borderRadius: 8, padding: '10px 14px',
+                          cursor: done ? 'default' : 'pointer',
+                          transition: 'all 0.2s',
+                        }}>
+                        <div style={{
+                          width: 22, height: 22, borderRadius: '50%',
+                          border: `2px solid ${done ? color : 'var(--border)'}`,
+                          background: done ? color : 'transparent',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0, transition: 'all 0.2s',
+                        }}>
+                          {done && <span style={{ fontSize: 12, color: '#000' }}>✓</span>}
+                        </div>
+                        <span style={{
+                          fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600,
+                          color: done ? color : 'var(--text)',
+                          textDecoration: done ? 'line-through' : 'none',
+                          opacity: done ? 0.7 : 1,
+                        }}>
+                          {label}
+                        </span>
+                        {!done && (
+                          <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)' }}>
+                            +{xpPerRep} XP
+                          </span>
+                        )}
+                      </motion.button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Bottom row */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
               <div style={{
@@ -151,7 +213,7 @@ export default function MissionCard({ challenge, isCompleted, onComplete, index 
                 {isCompleted ? '✓ MISSION ACCOMPLIE' : `+${challenge.xp} XP`}
               </div>
 
-              {!isCompleted && (
+              {!isCompleted && !hasReps && (
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}

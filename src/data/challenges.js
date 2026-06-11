@@ -19,6 +19,7 @@ export const CHALLENGES = [
     title: 'SCAN DES CHECKPOINTS',
     mission: 'Marcher 10 min après chaque repas',
     flavor: 'Trois checkpoints urbains t\'attendent. Les patrouilles post-repas stabilisent ta grille glycémique. En route, agent.',
+    reps: 3, repLabels: ['Après déjeuner', 'Après dîner', 'Après souper'],
   },
   {
     id: 'm3', zone: 'movement', xp: 140,
@@ -37,6 +38,7 @@ export const CHALLENGES = [
     title: 'RECHARGE DES CELLULES',
     mission: 'Se lever toutes les 30 minutes',
     flavor: 'Le mode sédentaire vide tes cellules d\'énergie. Brise l\'immobilité. Bouge, recharge, recommence.',
+    reps: 6, repLabels: ['1re levée', '2e levée', '3e levée', '4e levée', '5e levée', '6e levée'],
   },
 
   // NUTRITION
@@ -51,6 +53,7 @@ export const CHALLENGES = [
     title: 'CARBURANT DU MOTEUR QUANTIQUE',
     mission: 'Protéines + fibres en premier à chaque repas',
     flavor: 'Ton moteur quantique fonctionne avec la bonne séquence de carburant. Protéines et fibres d\'abord — toujours. Sans exception.',
+    reps: 3, repLabels: ['Déjeuner', 'Dîner', 'Souper'],
   },
   {
     id: 'n3', zone: 'nutrition', xp: 130,
