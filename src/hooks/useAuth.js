@@ -19,25 +19,38 @@ export function useAuth() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // Récupérer le résultat du redirect (mobile)
-    getRedirectResult(auth).catch(() => {})
+    // Récupérer le résultat du redirect (mobile) — une seule fois
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) setUser(result.user)
+      })
+      .catch((e) => {
+        if (e.code !== 'auth/null-user') setError(e.message)
+      })
 
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u ?? null))
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u ?? null)
+    })
     return unsub
   }, [])
 
   async function loginGoogle() {
     setLoading(true); setError(null)
     try {
-      if (isMobile) {
-        await signInWithRedirect(auth, googleProvider)
-      } else {
-        await signInWithPopup(auth, googleProvider)
-      }
+      // Essaie popup d'abord, bascule sur redirect si bloqué (mobile Safari)
+      await signInWithPopup(auth, googleProvider)
     } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user' || isMobile) {
+        try {
+          await signInWithRedirect(auth, googleProvider)
+        } catch (e2) {
+          setError(e2.message)
+          setLoading(false)
+        }
+      } else {
+        setError(e.message)
+        setLoading(false)
+      }
     }
   }
 
